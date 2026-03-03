@@ -1,0 +1,77 @@
+import streamlit as st
+import pandas as pd
+from datetime import datetime
+import sqlite3
+
+# Configuración de la página
+st.set_page_config(page_title="Corral Control Pro", page_icon="🥚", layout="centered")
+
+# --- BASE DE DATOS (Para que nada se borre) ---
+conn = sqlite3.connect('corral_datos.db', check_same_thread=False)
+c = conn.cursor()
+
+# Crear tablas si no existen
+c.execute('CREATE TABLE IF NOT EXISTS produccion (fecha TEXT, cantidad INTEGER)')
+c.execute('CREATE TABLE IF NOT EXISTS ventas (fecha TEXT, cliente TEXT, producto TEXT, cantidad INTEGER, total REAL)')
+c.execute('CREATE TABLE IF NOT EXISTS bajas (fecha TEXT, tipo TEXT, coste_perdido REAL)')
+conn.commit()
+
+# --- FUNCIONES DE CÁLCULO ---
+def obtener_precio(producto, fecha_str):
+    fecha = datetime.strptime(fecha_str, '%Y-%m-%d')
+    if producto == "HUEVOS":
+        # Lógica: Antes del 7 de marzo a 0.33€, después a 0.45€
+        return 0.45 if fecha >= datetime(2026, 3, 7) else 0.3333
+    return 50.0 if producto == "POLLO" else 0.0
+
+# --- INTERFAZ ---
+st.title("🥚 Corral Control Pro v1.0")
+st.sidebar.header("Menú de Gestión")
+opcion = st.sidebar.radio("Ir a:", ["Panel de Control", "Registrar Recogida", "Nueva Venta", "Registro de Bajas"])
+
+# --- LÓGICA DE PANTALLAS ---
+if opcion == "Panel de Control":
+    st.subheader("Estado Actual")
+    
+    # Cálculos rápidos
+    prod_total = pd.read_sql('SELECT SUM(cantidad) FROM produccion', conn).iloc[0,0] or 0
+    ventas_huevos = pd.read_sql('SELECT SUM(cantidad) FROM ventas WHERE producto="HUEVOS"', conn).iloc[0,0] or 0
+    stock_actual = prod_total - ventas_huevos
+    ingresos = pd.read_sql('SELECT SUM(total) FROM ventas', conn).iloc[0,0] or 0.0
+
+    col1, col2 = st.columns(2)
+    col1.metric("Huevos en Stock", f"{int(stock_actual)} uds")
+    col2.metric("Ingresos Totales", f"{round(ingresos, 2)} €")
+
+    st.divider()
+    st.write("### Últimos Movimientos")
+    df_v = pd.read_sql('SELECT * FROM ventas ORDER BY fecha DESC LIMIT 5', conn)
+    st.table(df_v)
+
+elif opcion == "Registrar Recogida":
+    st.subheader("🧺 Anotar Huevos Recogidos")
+    f = st.date_input("Fecha", datetime.now())
+    cant = st.number_input("Cantidad de huevos", min_value=1, step=1)
+    if st.button("Guardar"):
+        c.execute('INSERT INTO produccion VALUES (?,?)', (f.strftime('%Y-%m-%d'), cant))
+        conn.commit()
+        st.success("¡Guardado!")
+
+elif opcion == "Nueva Venta":
+    st.subheader("💰 Registrar Venta de Cliente")
+    f = st.date_input("Fecha de venta", datetime.now())
+    cli = st.text_input("Nombre del Cliente")
+    prod = st.selectbox("Producto", ["HUEVOS", "POLLO"])
+    cant = st.number_input("Cantidad", min_value=1, step=1)
+    
+    precio = obtener_precio(prod, f.strftime('%Y-%m-%d'))
+    total_venta = round(cant * precio, 2)
+    
+    st.info(f"Precio unitario: {precio} € | Total a cobrar: {total_venta} €")
+    
+    if st.button("Confirmar Venta"):
+        c.execute('INSERT INTO ventas VALUES (?,?,?,?,?)', 
+                  (f.strftime('%Y-%m-%d'), cli, prod, cant, total_venta))
+        conn.commit()
+        st.balloons()
+        st.success(f"Venta de {cli} registrada.")
