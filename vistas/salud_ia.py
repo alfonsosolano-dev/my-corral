@@ -1,5 +1,5 @@
 import streamlit as st
-from db import get_conn
+from db.db import get_conn
 from datetime import datetime
 import google.generativeai as genai
 

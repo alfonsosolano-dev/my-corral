@@ -1,6 +1,6 @@
 import streamlit as st
-from db import get_conn
-from utils import CONFIG_IA
+from db.db import get_conn
+from utils.utils import CONFIG_IA
 from datetime import datetime
 
 def mostrar():
