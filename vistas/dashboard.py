@@ -1,6 +1,6 @@
 import streamlit as st
 import plotly.express as px
-from utils import calcular_autonomia
+from utils.utils import calcular_autonomia
 
 def mostrar(df_lotes, df_gastos, df_ventas, df_prod, df_bajas, temp):
     st.title(f"🏠 Panel de Control Maestro (Cartagena: {temp}°C)")
