@@ -1,5 +1,5 @@
 import streamlit as st
-from db.db import get_conn
+**from db.db import get_conn**
 from utils.utils import CONFIG_IA
 from datetime import datetime
 
