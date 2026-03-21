@@ -1,6 +1,6 @@
 import streamlit as st
 from utils.utils import CONFIG_IA
-from db import get_conn
+from db.db import get_conn
 
 def mostrar():
     st.title("📜 Registros Históricos")
