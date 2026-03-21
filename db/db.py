@@ -2,7 +2,7 @@ import sqlite3
 from utils.utils import DB_PATH
 
 def get_conn():
-    return sqlite3.connect(DB_PATH, check_same_thread=False)
+    return sqlite3.connect("corral_maestro_pro.db", check_same_thread=False)
 
 def inicializar_db():
     with get_conn() as conn:
