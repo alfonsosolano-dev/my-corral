@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import cargar_datos
+from utils.utils import CONFIG_IA
 from db import get_conn
 
 def mostrar():

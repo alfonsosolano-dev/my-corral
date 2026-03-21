@@ -1,6 +1,6 @@
 import streamlit as st
 from datetime import datetime, timedelta
-from utils import CONFIG_IA
+from utils.utils import CONFIG_IA
 import pandas as pd
 
 def mostrar():
