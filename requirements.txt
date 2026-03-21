@@ -1,7 +1,7 @@
-streamlit==1.26.0
-pandas==2.1.0
-numpy==1.25.0
-plotly==5.18.0
+streamlit
+pandas
+numpy
+plotly
 google-generativeai
-requests==2.31.0
-openpyxl==3.1.2
+requests
+openpyxl
