@@ -1,19 +1,26 @@
 import streamlit as st
 from db.db import inicializar_db
+# Quitamos cargar_datos de aquí si da error y lo importamos directamente donde se use
 from utils.utils import cargar_datos, get_clima_cartagena
 from vistas import (dashboard, alta_lotes, salud_ia, produccion, ventas, gastos,
                     bajas, navidad, backup, historico)
 
+# Configuración de página (Esto siempre debe ser lo primero en Streamlit)
+st.set_page_config(page_title="Corral Omni V95", layout="wide")
+
 # Inicializar DB
 inicializar_db()
 
-# Cargar datos
-df_lotes = cargar_datos("lotes")
-df_gastos = cargar_datos("gastos")
-df_ventas = cargar_datos("ventas")
-df_prod = cargar_datos("produccion")
-df_bajas = cargar_datos("bajas")
-df_fotos = cargar_datos("fotos")
+# Cargar datos (Añadimos un try/except por si la tabla está vacía al principio)
+try:
+    df_lotes = cargar_datos("lotes")
+    df_gastos = cargar_datos("gastos")
+    df_ventas = cargar_datos("ventas")
+    df_prod = cargar_datos("produccion")
+    df_bajas = cargar_datos("bajas")
+except Exception as e:
+    st.error(f"Error al cargar tablas: {e}")
+    df_lotes = df_gastos = df_ventas = df_prod = df_bajas = None
 
 # Sidebar
 st.sidebar.title("🚜 CORRAL OMNI V95")
