@@ -29,3 +29,15 @@ def mostrar(df_lotes, df_gastos, df_ventas, df_prod, df_bajas, temp):
         if not df_lotes.empty:
             fig_pie = px.pie(df_lotes, values='cantidad', names='raza', title="Censo por Raza", hole=0.4)
             st.plotly_chart(fig_pie, use_container_width=True)
+stock_real, desglose = obtener_estado_pienso(df_lotes, df_bajas, df_gastos)
+
+st.subheader("📉 Consumo Histórico por Especie")
+if desglose:
+    # Creamos dos columnas para mostrar los datos
+    cols = st.columns(len(desglose))
+    for i, (especie, kilos) in enumerate(desglose.items()):
+        cols[i].metric(label=f"Consumido: {especie}", value=f"{round(kilos, 1)} kg")
+else:
+    st.write("No hay datos de consumo aún.")
+
+st.metric("📦 Stock Real en Almacén", f"{stock_real} kg", delta=f"-{round(sum(desglose.values()), 1)} consumidos")
