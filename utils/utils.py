@@ -31,9 +31,50 @@ def get_clima_cartagena(api_key):
         return 22.0
 
 def calcular_autonomia(df_lotes, df_bajas, df_gastos, temp):
-    aves_vivas = (df_lotes['cantidad'].sum() if not df_lotes.empty else 0) - (df_bajas['cantidad'].sum() if not df_bajas.empty else 0)
-    pienso = df_gastos['ilos_pienso'].sum() if not df_gastos.empty else 0
-    consumo_dia = aves_vivas * 0.125
-    if temp>30: consumo_dia*=1.15
-    autonomia = int(pienso/consumo_dia) if consumo_dia>0 else 0
-    return autonomia, consumo_dia
+    import pandas as pd
+    from datetime import datetime
+
+    if df_lotes.empty:
+        return 0, 0
+
+    # 1. Calcular aves vivas por lote y su consumo dinámico
+    consumo_total_diario = 0
+    
+    for _, lote in df_lotes.iterrows():
+        # Calcular aves actuales en este lote
+        bajas_lote = df_bajas[df_bajas['lote'] == lote['id']]['cantidad'].sum() if not df_bajas.empty else 0
+        aves_vivas = lote['cantidad'] - bajas_lote
+        
+        if aves_vivas <= 0: continue
+
+        # Calcular edad actual (días)
+        fecha_inicio = pd.to_datetime(lote['fecha'])
+        edad_actual = (datetime.now() - fecha_inicio).days + lote['edad_inicial']
+        
+        # --- Lógica de Consumo por Especie ---
+        especie = lote['especie']
+        
+        if especie == "Broiler":
+            # Crecimiento rápido: de 50g a 180g según edad (aprox)
+            consumo_base = min(0.050 + (edad_actual * 0.003), 0.180)
+        elif especie == "Codorniz":
+            consumo_base = 0.035
+        else: # Ponedoras (Roja, Blanca, etc.)
+            # Suben de 80g a 120g al llegar a la madurez
+            consumo_base = min(0.080 + (edad_actual * 0.0005), 0.125)
+
+        consumo_total_diario += (aves_vivas * consumo_base)
+
+    # 2. Ajuste por temperatura (Cartagena)
+    if temp > 30: 
+        consumo_total_diario *= 1.15  # Comen/beben más con calor
+    elif temp < 10:
+        consumo_total_diario *= 1.10  # Gastan más energía para calor
+
+    # 3. Stock de pienso (Suma de todos los sacos registrados)
+    stock_pienso = df_gastos['ilos_pienso'].sum() if not df_gastos.empty else 0
+    
+    # 4. Cálculo de autonomía
+    autonomia = int(stock_pienso / consumo_total_diario) if consumo_total_diario > 0 else 0
+    
+    return autonomia, consumo_total_diario
