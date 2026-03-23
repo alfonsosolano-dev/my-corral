@@ -13,19 +13,20 @@ def mostrar(df_lotes, df_gastos, df_ventas, df_prod, df_bajas, temp):
     beneficio = (caja_real + ahorro_casa) - total_inv
 
     # 2. CÁLCULOS DE PIENSO DINÁMICO
-    # Llamamos a la función que acabamos de crear en utils.py
-    stock_real, desglose = obtener_estado_pienso(df_lotes, df_bajas, df_gastos)
+    # Añadimos 'consumo_total' en medio para que coincida con lo que devuelve utils.py
+stock_real, consumo_total, desglose = obtener_estado_pienso(df_lotes, df_bajas, df_gastos)
     autonomia, consumo_dia = calcular_autonomia(df_lotes, df_bajas, df_gastos, temp)
 
-    # 3. FILA DE INDICADORES (KPIs)
+   # 3. FILA DE INDICADORES (KPIs)
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("💰 Inversión Total", f"{total_inv:.2f} €")
     c2.metric("📈 Beneficio", f"{beneficio:.2f} €", delta=f"{caja_real:.2f} Caja")
+    
+    # Usamos stock_real y consumo_total que acabamos de recibir
     c3.metric("⚖️ Stock Almacén", f"{stock_real:.1f} kg", 
-              delta=f"-{round(sum(desglose.values()), 1)} comidos", delta_color="inverse")
+              delta=f"-{consumo_total:.1f} comidos", delta_color="inverse")
+    
     c4.metric("⏳ Autonomía", f"{autonomia} días", delta=f"{consumo_dia:.2f} kg/día", delta_color="off")
-
-    st.divider()
 
     # 4. GRÁFICOS
     col_a, col_b = st.columns(2)
