@@ -1,10 +1,17 @@
 import streamlit as st
 import plotly.express as px
-# Importamos EXACTAMENTE los mismos nombres que pusimos en utils.py
 from utils.utils import calcular_autonomia, obtener_estado_pienso
 
 def mostrar(df_lotes, df_gastos, df_ventas, df_prod, df_bajas, temp):
     st.title(f"🏠 Panel de Control Maestro (Cartagena: {temp}°C)")
+
+    # ... cálculos de dinero ...
+
+    # LÍNEA CRÍTICA: Debe recibir 3 variables
+    stock_real, consumo_total, desglose = obtener_estado_pienso(df_lotes, df_bajas, df_gastos)
+    autonomia, consumo_dia = calcular_autonomia(df_lotes, df_bajas, df_gastos, temp)
+    
+    # ... resto del código ...
 
     # 1. CÁLCULOS DE DINERO
     total_inv = df_gastos['cantidad'].sum() if not df_gastos.empty else 0

@@ -10,9 +10,10 @@ def cargar_datos(tabla):
         return pd.DataFrame()
 
 def obtener_estado_pienso(df_lotes, df_bajas, df_gastos):
-    """Calcula el stock real restando el consumo acumulado por edad y especie"""
-    if df_gastos.empty:
-        return 0.0, 0.0, {}
+    # ... (toda tu lógica de cálculo anterior) ...
+    # ASEGÚRATE DE QUE DEVUELVE ESTAS 3 COSAS:
+    stock_actual = max(0, total_comprado - consumo_acumulado_total)
+    return round(stock_actual, 2), round(consumo_acumulado_total, 2), consumo_por_especie
 
     # 1. Total de kilos comprados históricamente
     total_comprado = df_gastos['ilos_pienso'].sum() if 'ilos_pienso' in df_gastos.columns else 0
