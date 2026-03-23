@@ -9,7 +9,7 @@ def cargar_datos(tabla):
     except:
         return pd.DataFrame()
 
-def obtener_inventario_pienso(df_lotes, df_bajas, df_gastos):
+def obtener_estado_pienso(df_lotes, df_bajas, df_gastos):
     """Calcula el stock real restando el consumo acumulado por edad y especie"""
     if df_gastos.empty:
         return 0.0, 0.0, {}
@@ -67,8 +67,9 @@ def obtener_inventario_pienso(df_lotes, df_bajas, df_gastos):
     return round(stock_actual, 2), round(consumo_acumulado_total, 2), consumo_por_especie
 
 def calcular_autonomia(df_lotes, df_bajas, df_gastos, temp):
-    """Calcula cuántos días de comida quedan basado en el consumo de HOY"""
-    stock_real, _, _ = obtener_inventario_pienso(df_lotes, df_bajas, df_gastos)
+    # Cambia el nombre aquí también:
+    stock_real, _, _ = obtener_estado_pienso(df_lotes, df_bajas, df_gastos) 
+    ...
     
     consumo_hoy = 0
     if not df_lotes.empty:
