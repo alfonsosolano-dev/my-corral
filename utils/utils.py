@@ -1,16 +1,12 @@
 import pandas as pd
 from datetime import datetime
-import streamlit as st
-from db.db import get_conn  # Esta importación ahora es segura
+from db.db import get_conn # Esta importación es segura ahora
 
 def cargar_datos(tabla):
-    """Carga datos de cualquier tabla de la DB en un DataFrame"""
     try:
         with get_conn() as conn:
-            query = f"SELECT * FROM {tabla}"
-            return pd.read_sql(query, conn)
-    except Exception as e:
-        # Si la tabla no existe o está vacía, devuelve un DF con las columnas mínimas
+            return pd.read_sql(f"SELECT * FROM {tabla}", conn)
+    except:
         return pd.DataFrame()
 
 def obtener_inventario_pienso(df_lotes, df_bajas, df_gastos):

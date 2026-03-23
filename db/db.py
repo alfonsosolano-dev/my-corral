@@ -1,7 +1,6 @@
 import sqlite3
-import os
 
-# Ruta fija para evitar errores entre carpetas
+# Definimos la ruta aquí para romper el ciclo de importación
 DB_PATH = "corral_maestro_pro.db"
 
 def get_conn():
@@ -9,7 +8,7 @@ def get_conn():
 
 def inicializar_db():
     with get_conn() as conn:
-        # 1. Tabla de Gastos e Inventario de Pienso
+        # Tabla de Gastos con la columna clave: ilos_pienso
         conn.execute("""
             CREATE TABLE IF NOT EXISTS gastos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,6 +19,8 @@ def inicializar_db():
                 ilos_pienso REAL
             )
         """)
+        # ... resto de tablas (lotes, bajas, etc.)
+        conn.commit()
         
         # 2. Tabla de Lotes (El origen de todo)
         conn.execute("""

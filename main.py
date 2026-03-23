@@ -1,6 +1,7 @@
 import streamlit as st
 from db.db import inicializar_db
-# Quitamos cargar_datos de aquí si da error y lo importamos directamente donde se use
+from utils.utils import cargar_datos, get_clima_cartagena
+# ... resto de importaciones de vistas
 from utils.utils import cargar_datos, get_clima_cartagena
 from vistas import (dashboard, alta_lotes, salud_ia, produccion, ventas, gastos,
                     bajas, navidad, backup, historico)
